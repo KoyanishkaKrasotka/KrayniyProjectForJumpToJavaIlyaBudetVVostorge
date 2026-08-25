@@ -30,7 +30,8 @@ public class FilmService {
         if (filmResponse.getItems() != null) {
             for (FilmItem item: filmResponse.getItems()) {
                 if(!filmRepository.existsByFilmId(item.getKinopoiskId())) {
-                    Film film = new Film(item.getKinopoiskId(), item.getNameRu(), item.getYear(), item.getRatingKinopoisk(), null);
+                    String filmName = item.getNameRu() != null ? item.getNameRu() : item.getNameOriginal();
+                    Film film = new Film(item.getKinopoiskId(), filmName, item.getYear(), item.getRatingKinopoisk(), null);
                     filmRepository.save(film);
                 }
             }

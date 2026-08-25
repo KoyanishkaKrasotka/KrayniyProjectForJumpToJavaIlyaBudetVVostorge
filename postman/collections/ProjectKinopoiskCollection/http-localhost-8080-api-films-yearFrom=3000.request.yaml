@@ -1,0 +1,7 @@
+$kind: http-request
+name: http://localhost:8080/api/films?yearFrom=3000
+url: http://localhost:8080/api/films?yearFrom=3000
+method: GET
+queryParams:
+  yearFrom: "3000"
+order: 908697329662451

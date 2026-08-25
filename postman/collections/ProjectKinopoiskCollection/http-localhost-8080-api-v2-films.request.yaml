@@ -1,0 +1,5 @@
+$kind: http-request
+name: http://localhost:8080/api/v2/films
+url: http://localhost:8080/api/v2/films
+method: GET
+order: 2519565190988276

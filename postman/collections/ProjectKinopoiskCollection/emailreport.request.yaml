@@ -1,0 +1,6 @@
+$kind: http-request
+url: http://localhost:8080/api/v2/films/report?email=albiak350@gmail.com
+method: GET
+queryParams:
+  email: albiak350@gmail.com
+order: 4396125337206054
