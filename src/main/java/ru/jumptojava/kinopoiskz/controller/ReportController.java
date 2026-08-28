@@ -5,36 +5,29 @@ import jakarta.xml.bind.JAXBException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.jumptojava.kinopoiskz.entity.Film;
-import ru.jumptojava.kinopoiskz.repository.FilmRepository;
 import ru.jumptojava.kinopoiskz.service.EmailService;
 import ru.jumptojava.kinopoiskz.service.ReportService;
 
-import java.util.List;
+import java.io.IOException;
 
 @RestController
 public class ReportController {
 
     private final EmailService emailService;
     private final ReportService reportService;
-    private final FilmRepository filmRepository;
 
-    public ReportController(EmailService emailService, ReportService reportService, FilmRepository filmRepository) {
+    public ReportController(EmailService emailService, ReportService reportService) {
         this.emailService = emailService;
         this.reportService = reportService;
-        this.filmRepository = filmRepository;
     }
 
     @GetMapping("/api/v2/films/report")
     public String sendReport(@RequestParam String email,
-                             @RequestParam(defaultValue = "csv") String format) throws JAXBException, MessagingException {
+                             @RequestParam(defaultValue = "csv") String format) throws JAXBException, MessagingException, IOException {
 
-        List<Film> films = filmRepository.findAll();
 
-        String content = format.equals("xml")
-                ? reportService.generateXml(films)
-                : reportService.generateCsv(films);
 
+        String content = reportService.generateReport(format);
         emailService.sendReport(email, content, format);
 
         return "Отчёт отправлен на " + email;

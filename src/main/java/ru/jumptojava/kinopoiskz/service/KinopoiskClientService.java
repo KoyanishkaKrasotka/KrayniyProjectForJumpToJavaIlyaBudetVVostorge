@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.jumptojava.kinopoiskz.dto.FilmResponse;
@@ -73,15 +74,16 @@ public class KinopoiskClientService {
         headers.set("X-API-KEY", kinopoiskApiToken);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        System.out.println(uri);
-
-        ResponseEntity<FilmResponse> response = restTemplate.exchange(
-                uri,
-                HttpMethod.GET,
-                entity,
-                FilmResponse.class
-        );
-
-        return response.getBody();
+        try {
+            ResponseEntity<FilmResponse> response = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    entity,
+                    FilmResponse.class
+            );
+            return response.getBody();
+        } catch (RestClientException e) {
+            throw new RuntimeException("Не удалось получить данные от Кинопоиска - " + e.getMessage(), e);
+        }
     }
 }

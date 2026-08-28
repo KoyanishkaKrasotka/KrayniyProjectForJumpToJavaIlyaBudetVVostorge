@@ -4,8 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.jumptojava.kinopoiskz.dto.FilmDto;
 import ru.jumptojava.kinopoiskz.dto.FilmResponse;
-import ru.jumptojava.kinopoiskz.entity.Film;
 import ru.jumptojava.kinopoiskz.service.FilmSearchService;
 import ru.jumptojava.kinopoiskz.service.FilmService;
 
@@ -37,15 +37,15 @@ public class FilmController {
     }
 
     @GetMapping("/api/films")
-    public Page<Film> searchFilms(@RequestParam(required = false) Integer yearFrom,
-                                  @RequestParam(required = false) Integer yearTo,
-                                  @RequestParam(required = false) Float ratingFrom,
-                                  @RequestParam(required = false) Float ratingTo,
-                                  @RequestParam(required = false) String keyword,
-                                  @RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "10") int size,
-                                  @RequestParam(defaultValue = "id") String sortBy,
-                                  @RequestParam(defaultValue = "asc") String sortDirection) {
+    public Page<FilmDto> searchFilms(@RequestParam(required = false) Integer yearFrom,
+                                     @RequestParam(required = false) Integer yearTo,
+                                     @RequestParam(required = false) Float ratingFrom,
+                                     @RequestParam(required = false) Float ratingTo,
+                                     @RequestParam(required = false) String keyword,
+                                     @RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size,
+                                     @RequestParam(defaultValue = "id") String sortBy,
+                                     @RequestParam(defaultValue = "asc") String sortDirection) {
 
         return filmSearchService.searchFilms(yearFrom, yearTo, ratingFrom, ratingTo, keyword, page, size, sortBy, sortDirection);
     }
