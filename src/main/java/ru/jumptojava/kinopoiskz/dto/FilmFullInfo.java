@@ -49,7 +49,7 @@ public class FilmFullInfo {
     public FilmFullInfo() {
     }
 
-    public FilmFullInfo(Integer kinopoiskId, Integer kinopoiskHDId, String imdbId, String nameRu, String nameEn, String nameOriginal, List<Countries> countries, List<Genres> genres, Float ratingKinopoisk, Float ratingImdb, Integer year, String type, String posterUrl, String posterUrlPreview, Integer filmLength, Integer reviewsCount, Float ratingGoodReview, String webUrl, String slogan, String description, boolean completed) {
+    public FilmFullInfo(Integer kinopoiskId, String kinopoiskHDId, String imdbId, String nameRu, String nameEn, String nameOriginal, List<Countries> countries, List<Genres> genres, Float ratingKinopoisk, Float ratingImdb, Integer year, String type, String posterUrl, String posterUrlPreview, Integer filmLength, Integer reviewsCount, Float ratingGoodReview, String webUrl, String slogan, String description, boolean completed) {
         this.kinopoiskId = kinopoiskId;
         this.kinopoiskHDId = kinopoiskHDId;
         this.imdbId = imdbId;
@@ -81,11 +81,11 @@ public class FilmFullInfo {
         this.kinopoiskId = kinopoiskId;
     }
 
-    public Integer getKinopoiskHDId() {
+    public String getKinopoiskHDId() {
         return kinopoiskHDId;
     }
 
-    public void setKinopoiskHDId(Integer kinopoiskHDId) {
+    public void setKinopoiskHDId(String kinopoiskHDId) {
         this.kinopoiskHDId = kinopoiskHDId;
     }
 

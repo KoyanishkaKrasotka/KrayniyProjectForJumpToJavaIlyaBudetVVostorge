@@ -29,4 +29,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body("Ресурс не найден: " + e.getMessage());
     }
+
+    @ExceptionHandler(UsernameAlreadyExistException.class)
+    public ResponseEntity<String> handleUsernameAlreadyExistException(UsernameAlreadyExistException e) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body("Пользователь с таким именем уже существует: " + e.getMessage());
+    }
 }
