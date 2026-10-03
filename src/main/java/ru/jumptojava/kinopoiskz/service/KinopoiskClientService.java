@@ -1,6 +1,8 @@
 package ru.jumptojava.kinopoiskz.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +39,14 @@ public class KinopoiskClientService {
     }
 
 
+    private FilmResponse filmsFallback(Integer countries, Integer genres, String order, String type,
+                                       Float ratingFrom, Float ratingTo,
+                                       Integer yearFrom, Integer yearTo,
+                                       String keyword, Integer page, Throwable t) {
+        throw  new RuntimeException("Внешний сервис Кинопоиска недоступен: " + t.getMessage());
+    }
+
+    @CircuitBreaker(name = "kinopoiskApi", fallbackMethod = "filmsFallback")
     public FilmResponse getFilms(Integer countries, Integer genres, String order, String type,
                                  Float ratingFrom, Float ratingTo,
                                  Integer yearFrom, Integer yearTo,
@@ -95,9 +105,15 @@ public class KinopoiskClientService {
         }
     }
 
+    private SimilarFilmResponse similarFallback(Integer id, Throwable t) {
+        throw  new RuntimeException("Внешний сервис Кинопоиска недоступен: " + t.getMessage());
+    }
+
+    @Cacheable(cacheNames = "similarFilms", key = "#id")
+    @CircuitBreaker(name = "kinopoiskApi", fallbackMethod = "similarFallback")
     public SimilarFilmResponse getSimilarFilms(Integer id) {
         UriComponentsBuilder builder = UriComponentsBuilder
-                .fromUriString(kinopoiskUrl + "/api/v2.2/films/{id}/similar");
+                .fromUriString(kinopoiskUrl + "/api/v2.2/films/{id}/similars");
         URI uri = builder.buildAndExpand(id).encode(StandardCharsets.UTF_8).toUri();
 
         HttpHeaders headers = new HttpHeaders();
@@ -117,6 +133,12 @@ public class KinopoiskClientService {
         }
     }
 
+    private ReviewResponse reviewsFallback(Integer id,Integer page, ReviewOrder order, Throwable t) {
+        throw  new RuntimeException("Внешний сервис Кинопоиска недоступен: " + t.getMessage());
+    }
+
+    @Cacheable(cacheNames = "reviews", key = "#id + '_' + #page + '_' + #order")
+    @CircuitBreaker(name = "kinopoiskApi", fallbackMethod = "reviewsFallback")
     public ReviewResponse getReviews(Integer id,Integer page, ReviewOrder order) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(kinopoiskUrl + "/api/v2.2/films/{id}/reviews");
@@ -146,6 +168,12 @@ public class KinopoiskClientService {
         }
     }
 
+    private List<StaffItem> staffFallback(Integer filmId, Throwable t) {
+        throw  new RuntimeException("Внешний сервис Кинопоиска недоступен: " + t.getMessage());
+    }
+
+    @Cacheable(cacheNames = "staff", key = "#filmId")
+    @CircuitBreaker(name = "kinopoiskApi", fallbackMethod = "staffFallback")
     public List<StaffItem> getStaff(Integer filmId) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(kinopoiskUrl + "/api/v1/staff");
 
@@ -169,6 +197,11 @@ public class KinopoiskClientService {
         }
     }
 
+    private FilmFullInfo filmsByIdFallback(Integer id, Throwable t) {
+        throw  new RuntimeException("Внешний сервис Кинопоиска недоступен: " + t.getMessage());
+    }
+
+    @CircuitBreaker(name = "kinopoiskApi", fallbackMethod = "filmsByIdFallback")
     public FilmFullInfo getFilmById(Integer id) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(kinopoiskUrl + "/api/v2.2/films/{id}");
@@ -191,6 +224,12 @@ public class KinopoiskClientService {
         }
     }
 
+    private SeasonsResponse seasonsFallback(Integer id, Throwable t) {
+        throw  new RuntimeException("Внешний сервис Кинопоиска недоступен: " + t.getMessage());
+    }
+
+    @Cacheable(cacheNames = "seasons", key = "#id")
+    @CircuitBreaker(name = "kinopoiskApi", fallbackMethod = "seasonsFallback")
     public SeasonsResponse getSeasons(Integer id) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(kinopoiskUrl + "/api/v2.2/films/{id}/seasons");
@@ -213,6 +252,12 @@ public class KinopoiskClientService {
         }
     }
 
+    private ImageResponse imageFallback(Integer id, Integer page, ImageType type, Throwable t) {
+        throw  new RuntimeException("Внешний сервис Кинопоиска недоступен: " + t.getMessage());
+    }
+
+    @Cacheable(cacheNames = "images", key = "#id + '_' + #page + '_' + #type")
+    @CircuitBreaker(name = "kinopoiskApi", fallbackMethod = "imageFallback")
     public ImageResponse getImage(Integer id, Integer page, ImageType type) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(kinopoiskUrl + "/api/v2.2/films/{id}/images");
@@ -243,7 +288,12 @@ public class KinopoiskClientService {
             throw new RuntimeException("Не удалось получить данные от Кинопоиска - " + e.getMessage(), e);
         }
     }
+    private PremiereResponse premiereFallback(Integer year, PremiereMonth month, Throwable t) {
+        throw  new RuntimeException("Внешний сервис Кинопоиска недоступен: " + t.getMessage());
+    }
 
+    @Cacheable(cacheNames = "premiers", key = "#year + '_' + #month")
+    @CircuitBreaker(name = "kinopoiskApi", fallbackMethod = "premiereFallback")
     public PremiereResponse getPremieres(Integer year, PremiereMonth month) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(kinopoiskUrl + "/api/v2.2/films/premieres");
@@ -275,7 +325,12 @@ public class KinopoiskClientService {
         }
 
     }
+    private CollectionResponse collectionsFallback(CollectionType type, Integer page, Throwable t) {
+        throw  new RuntimeException("Внешний сервис Кинопоиска недоступен: " + t.getMessage());
+    }
 
+    @Cacheable(cacheNames = "collections", key = "#type + '_' + #page")
+    @CircuitBreaker(name = "kinopoiskApi", fallbackMethod = "collectionsFallback")
     public CollectionResponse getCollections(CollectionType type, Integer page) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(kinopoiskUrl + "/api/v2.2/films/collections");
@@ -306,6 +361,11 @@ public class KinopoiskClientService {
         }
     }
 
+    private SearchByKeywordResponse filmsByKeywordsFallback(String keyword, Integer page, Throwable t) {
+            throw  new RuntimeException("Внешний сервис Кинопоиска недоступен: " + t.getMessage());
+    }
+
+    @CircuitBreaker(name = "kinopoiskApi", fallbackMethod = "filmsByKeywordsFallback")
     public SearchByKeywordResponse getFilmsByKeyword(String keyword, Integer page) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(kinopoiskUrl + "/api/v2.1/films/search-by-keyword");

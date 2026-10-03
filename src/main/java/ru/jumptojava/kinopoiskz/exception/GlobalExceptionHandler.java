@@ -36,4 +36,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body("Пользователь с таким именем уже существует: " + e.getMessage());
     }
+
+    @ExceptionHandler(FilmAlreadyExistsException.class)
+    public ResponseEntity<String> handleFilmAlreadyExistsException(FilmAlreadyExistsException e) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body("Данный фильм уже есть в вашем списке избранного: " + e.getMessage());
+    }
 }

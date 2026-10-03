@@ -35,30 +35,51 @@ public class FilmService {
                                     Float ratingFrom, Float ratingTo,
                                     Integer yearFrom, Integer yearTo,
                                     String keyword, Integer page) {
+        return importFilmsInternal(countries, genres, order, type, ratingFrom, ratingTo,
+                yearFrom, yearTo, keyword, page).getFilmResponse();
+    }
+
+    public ImportResult importFilmsWithStats(Integer countries, Integer genres, String order, String type,
+                                             Float ratingFrom, Float ratingTo,
+                                             Integer yearFrom, Integer yearTo,
+                                             String keyword, Integer page) {
+        return importFilmsInternal(countries, genres, order, type, ratingFrom, ratingTo,
+                yearFrom, yearTo, keyword, page);
+    }
+
+    private ImportResult importFilmsInternal(Integer countries, Integer genres, String order, String type,
+                                             Float ratingFrom, Float ratingTo,
+                                             Integer yearFrom, Integer yearTo,
+                                             String keyword, Integer page) {
 
         FilmResponse filmResponse = kinopoiskClientService.getFilms(countries, genres, order, type,
                 ratingFrom, ratingTo,
                 yearFrom, yearTo,
                 keyword, page);
 
+        int filmsCount = 0;
+        int newFilmsCount = 0;
+
         if (filmResponse.getItems() != null) {
-            for (FilmItem item: filmResponse.getItems()) {
-                if(!filmRepository.existsByFilmId(item.getKinopoiskId())) {
+            filmsCount = filmResponse.getItems().size();
+            for (FilmItem item : filmResponse.getItems()) {
+                if (!filmRepository.existsByFilmId(item.getKinopoiskId())) {
                     String filmName = item.getNameRu() != null ? item.getNameRu() : item.getNameOriginal();
                     Film film = new Film(item.getKinopoiskId(), filmName, item.getYear(), item.getRatingKinopoisk(), null);
-                    for (Genres genre: item.getGenres()) {
+                    for (Genres genre : item.getGenres()) {
                         film.getGenres().add(resolveGenre(genre.getGenre()));
                     }
-                    for (Countries country: item.getCountries()) {
+                    for (Countries country : item.getCountries()) {
                         film.getCountries().add(resolveCountry(country.getCountry()));
                     }
                     filmRepository.save(film);
                     importStaff(film);
+                    newFilmsCount++;
                 }
             }
         }
 
-        return filmResponse;
+        return new ImportResult(filmResponse, filmsCount, newFilmsCount);
     }
 
     public List<StaffItem> importStaff(Film film) {
@@ -91,7 +112,7 @@ public class FilmService {
         filmRepository.save(localFilm);
     }
 
-    private Genre resolveGenre(String name) {
+    Genre resolveGenre(String name) {
         Optional<Genre> genre = genreRepository.findByName(name);
         if (genre.isEmpty()) {
             return new Genre(name);
@@ -99,7 +120,7 @@ public class FilmService {
         return genre.get();
     }
 
-    private Country resolveCountry(String name) {
+    Country resolveCountry(String name) {
         Optional<Country> country = countryRepository.findByName(name);
         if (country.isEmpty()) {
             return new Country(name);
